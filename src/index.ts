@@ -1,12 +1,24 @@
 import { BudgetManager } from "./core/engine/BudgetManager";
 import { LoopGuard } from "./core/engine/LoopGuard";
 import { CostAuditor } from "./core/engine/CostAuditor";
+import { guardLlmCall, wrapLlmCaller } from "./core/engine/GuardrailMiddleware";
 import { LocalFileStore } from "./infra/LocalFileStore";
-import { UsageMeter } from "./infra/UsageMeter";
+import { ConsoleUsageReporter, UsageMeter } from "./infra/UsageMeter";
 import { KeyVault } from "./infra/KeyVault";
 import { guardrailConfig } from "./config/guardrail.config";
 
-export { BudgetManager, LoopGuard, CostAuditor, LocalFileStore, UsageMeter, KeyVault, guardrailConfig };
+export {
+  BudgetManager,
+  LoopGuard,
+  CostAuditor,
+  LocalFileStore,
+  UsageMeter,
+  ConsoleUsageReporter,
+  KeyVault,
+  guardrailConfig,
+  guardLlmCall,
+  wrapLlmCaller,
+};
 
 export function createGuardrail(baseDir: string, encryptionKey: string) {
   const store = new LocalFileStore(baseDir);

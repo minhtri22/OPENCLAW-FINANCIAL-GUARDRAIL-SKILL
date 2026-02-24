@@ -4,6 +4,7 @@ export interface GuardrailConfig {
   cooldownWindowMinutes: number;
   deltaThreshold: number;
   tokenPricePer1k: number;
+  tokenPricePer1kByModel: Record<string, number>;
   costSpikeMultiplier: number;
   costHistoryWindow: number;
   forbiddenAuthorityKeys: string[];
@@ -15,6 +16,10 @@ export const guardrailConfig: GuardrailConfig = {
   cooldownWindowMinutes: 60,
   deltaThreshold: 0.1,
   tokenPricePer1k: 0.5,
+  tokenPricePer1kByModel: {
+    "gpt-4o-mini": 0.15,
+    "gpt-4o": 5,
+  },
   costSpikeMultiplier: 3,
   costHistoryWindow: 20,
   forbiddenAuthorityKeys: ["tier", "budget", "maxDailyBurn", "reserveCapital", "capital"],

@@ -11,6 +11,7 @@ export interface UsageEntry {
   tokensUsed: number;
   estimatedCost: number;
   reason: string;
+  model?: string;
 }
 
 export interface LoopState {

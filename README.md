@@ -34,7 +34,8 @@ Required config values:
 - `maxExecutionPerDay`: default 10
 - `cooldownWindowMinutes`: default 60
 - `deltaThreshold`: default 0.1
-- `tokenPricePer1k`: default 0.5
+- `tokenPricePer1k`: default 0.5 (fallback)
+- `tokenPricePer1kByModel`: map per model (e.g. `gpt-4o-mini`, `gpt-4o`)
 - `costSpikeMultiplier`: default 3
 - `costHistoryWindow`: default 20
 - `forbiddenAuthorityKeys`: defaults to tier/budget related keys
@@ -61,6 +62,7 @@ await guardrail.loop.assertExecution("task-1", 0.42);
 const usage = await guardrail.auditor.audit({
   promptTokens: 500,
   completionTokens: 250,
+  model: "gpt-4o-mini",
   reason: "plan-run",
 });
 ```
@@ -75,7 +77,7 @@ A minimal flow that matches the OpenClaw agent lifecycle:
 
 Example (runner skeleton):
 ```ts
-import { createGuardrail } from "./dist";
+import { createGuardrail, guardLlmCall } from "./dist";
 
 const guardrail = createGuardrail("./data", process.env.GUARDRAIL_KEY || "0123456789abcdef0123456789abcdef");
 
@@ -88,19 +90,22 @@ await guardrail.budget.init({
 });
 
 export async function runTask(taskId: string, signal: number) {
-  const allowed = await guardrail.budget.spend(20, "agent-run");
-  if (!allowed) throw new Error("Budget limit hit");
-
-  await guardrail.loop.assertExecution(taskId, signal);
-
-  // Run your OpenClaw agent here and compute real token usage.
-  const promptTokens = 500;
-  const completionTokens = 250;
-
-  await guardrail.auditor.audit({
-    promptTokens,
-    completionTokens,
+  return guardLlmCall(guardrail, {
+    taskId,
+    signal,
+    spend: 20,
     reason: "agent-run",
+    model: "gpt-4o-mini",
+    execute: async () => {
+      // Run your OpenClaw agent here and compute real token usage.
+      const promptTokens = 500;
+      const completionTokens = 250;
+
+      return {
+        result: { ok: true },
+        usage: { promptTokens, completionTokens, model: "gpt-4o-mini" },
+      };
+    },
   });
 }
 ```
@@ -108,6 +113,16 @@ export async function runTask(taskId: string, signal: number) {
 ## Security Notes
 - Provide AES-256 key via environment (`GUARDRAIL_KEY`).
 - Never log plaintext API keys; use `KeyVault` to encrypt/decrypt.
+
+## Usage Logging & Export
+`UsageMeter` writes JSONL to disk and can fan out to reporters for dashboards.
+
+```ts
+import { ConsoleUsageReporter } from "./dist";
+
+guardrail.meter.addReporter(new ConsoleUsageReporter());
+const ledger = await guardrail.meter.readLedger();
+```
 
 ## Repo Layout
 ```

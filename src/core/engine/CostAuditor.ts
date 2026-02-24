@@ -6,6 +6,7 @@ import { UsageMeter } from "../../infra/UsageMeter";
 interface AuditInput {
   promptTokens: number;
   completionTokens: number;
+  model?: string;
   reportedCost?: number;
   reason: string;
 }
@@ -17,7 +18,11 @@ export class CostAuditor {
 
   async audit(input: AuditInput): Promise<UsageEntry> {
     const tokensUsed = Math.max(0, input.promptTokens + input.completionTokens);
-    const estimatedCost = (tokensUsed / 1000) * guardrailConfig.tokenPricePer1k;
+    const modelPrice =
+      input.model && guardrailConfig.tokenPricePer1kByModel[input.model] !== undefined
+        ? guardrailConfig.tokenPricePer1kByModel[input.model]
+        : guardrailConfig.tokenPricePer1k;
+    const estimatedCost = (tokensUsed / 1000) * modelPrice;
 
     const history = await this.store.readJson<number[]>(this.historyFile, []);
     const avg = history.length > 0 ? history.reduce((sum, c) => sum + c, 0) / history.length : estimatedCost;
@@ -32,6 +37,7 @@ export class CostAuditor {
       tokensUsed,
       estimatedCost,
       reason: input.reason,
+      model: input.model,
     };
 
     history.push(estimatedCost);

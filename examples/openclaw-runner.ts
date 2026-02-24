@@ -1,5 +1,5 @@
 import path from "path";
-import { createGuardrail } from "../dist";
+import { ConsoleUsageReporter, createGuardrail, guardLlmCall } from "../dist";
 
 async function run() {
   const guardrail = createGuardrail(
@@ -18,20 +18,23 @@ async function run() {
   const taskId = "openclaw-task-001";
   const newScore = 0.62;
 
-  await guardrail.loop.assertExecution(taskId, newScore);
+  guardrail.meter.addReporter(new ConsoleUsageReporter());
 
-  const spendOk = await guardrail.budget.spend(15, "agent-run");
-  if (!spendOk) {
-    throw new Error("Budget exceeded or reserve breached");
-  }
-
-  const usage = await guardrail.auditor.audit({
-    promptTokens: 900,
-    completionTokens: 300,
+  const result = await guardLlmCall(guardrail, {
+    taskId,
+    signal: newScore,
+    spend: 15,
     reason: "openclaw-agent-output",
+    model: "gpt-4o-mini",
+    execute: async () => {
+      return {
+        result: { ok: true },
+        usage: { promptTokens: 900, completionTokens: 300, model: "gpt-4o-mini" },
+      };
+    },
   });
 
-  console.log("Usage logged", usage);
+  console.log("Runner result", result);
 }
 
 run().catch((err) => {
