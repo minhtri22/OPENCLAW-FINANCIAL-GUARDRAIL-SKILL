@@ -43,7 +43,7 @@ Required config values:
 ```ts
 import { createGuardrail } from "./dist";
 
-const guardrail = createGuardrail("./data", process.env.GUARDRAIL_KEY || "32-bytes-minimum-key__________");
+const guardrail = createGuardrail("./data", process.env.GUARDRAIL_KEY || "0123456789abcdef0123456789abcdef");
 
 await guardrail.budget.init({
   totalCapital: 1000,
@@ -77,7 +77,7 @@ Example (runner skeleton):
 ```ts
 import { createGuardrail } from "./dist";
 
-const guardrail = createGuardrail("./data", process.env.GUARDRAIL_KEY || "32-bytes-minimum-key__________");
+const guardrail = createGuardrail("./data", process.env.GUARDRAIL_KEY || "0123456789abcdef0123456789abcdef");
 
 await guardrail.budget.init({
   totalCapital: 1000,
@@ -134,7 +134,7 @@ npm run build
 
 Run the example:
 ```bash
-node examples/openclaw-runner.ts
+npm run example
 ```
 
 The example:

@@ -2,7 +2,10 @@ import path from "path";
 import { createGuardrail } from "../dist";
 
 async function run() {
-  const guardrail = createGuardrail(path.join(process.cwd(), "runtime-data"), process.env.GUARDRAIL_KEY || "32-bytes-minimum-key__________");
+  const guardrail = createGuardrail(
+    path.join(process.cwd(), "runtime-data"),
+    process.env.GUARDRAIL_KEY || "0123456789abcdef0123456789abcdef"
+  );
 
   await guardrail.budget.init({
     totalCapital: 250,
