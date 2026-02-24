@@ -29,17 +29,4 @@ export class LocalFileStore {
     const payload = JSON.stringify(line);
     await fs.appendFile(this.resolve(file), payload + "\n", "utf-8");
   }
-
-  async readJsonLines<T>(file: string): Promise<T[]> {
-    try {
-      const raw = await fs.readFile(this.resolve(file), "utf-8");
-      return raw
-        .split("\n")
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0)
-        .map((line) => JSON.parse(line) as T);
-    } catch {
-      return [];
-    }
-  }
 }

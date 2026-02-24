@@ -21,3 +21,17 @@ export interface LoopState {
   executionsToday: number;
   lastExecutionDate: string;
 }
+
+export interface LogEvent {
+  requestId: string;
+  model: string;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  cost: number;
+  latencyMs: number;
+  environment: string;
+  blocked: boolean;
+  blockReason?: string;
+  timestamp: number;
+}

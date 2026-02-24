@@ -92,6 +92,8 @@ await guardrail.budget.init({
 export async function runTask(taskId: string, signal: number) {
   return guardLlmCall(guardrail, {
     taskId,
+    requestId: "req-001",
+    environment: "dev",
     signal,
     spend: 20,
     reason: "agent-run",
@@ -114,15 +116,9 @@ export async function runTask(taskId: string, signal: number) {
 - Provide AES-256 key via environment (`GUARDRAIL_KEY`).
 - Never log plaintext API keys; use `KeyVault` to encrypt/decrypt.
 
-## Usage Logging & Export
-`UsageMeter` writes JSONL to disk and can fan out to reporters for dashboards.
-
-```ts
-import { ConsoleUsageReporter } from "./dist";
-
-guardrail.meter.addReporter(new ConsoleUsageReporter());
-const ledger = await guardrail.meter.readLedger();
-```
+## Structured Logs (for Lighthouse consumption)
+`UsageMeter` writes per-call JSONL logs with shape:
+`{ requestId, model, promptTokens, completionTokens, totalTokens, cost, latencyMs, environment, blocked, blockReason?, timestamp }`
 
 ## Repo Layout
 ```
@@ -158,3 +154,7 @@ The example:
 - records audited usage
 
 Note: The loop guard applies a cooldown window (default 60 minutes). If you rerun the example immediately, it may be blocked. To reset quickly, delete the local runtime state (the `runtime-data/` folder) or change the `taskId`.
+
+## Scope Boundary
+- This repo only enforces budgets, costs, loops/retries, concurrency, and emits structured logs.
+- It does **not** perform analytics, reporting, simulation, optimization planning, or bottleneck classification. Use Lighthouse for observability/diagnostics.

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CostAuditor } from "../src/core/engine/CostAuditor";
 import { LocalFileStore } from "../src/infra/LocalFileStore";
-import { UsageMeter } from "../src/infra/UsageMeter";
 import path from "path";
 import { promises as fs } from "fs";
 
@@ -15,8 +14,7 @@ describe("Byzantine Worker Test", () => {
   it("ignores reported cost and calculates cost from tokens", async () => {
     await reset();
     const store = new LocalFileStore(tmpDir);
-    const meter = new UsageMeter(store);
-    const auditor = new CostAuditor(store, meter);
+    const auditor = new CostAuditor(store);
 
     const entry = await auditor.audit({
       promptTokens: 1000,
@@ -32,8 +30,7 @@ describe("Byzantine Worker Test", () => {
   it("detects cost spike and trips circuit", async () => {
     await reset();
     const store = new LocalFileStore(tmpDir);
-    const meter = new UsageMeter(store);
-    const auditor = new CostAuditor(store, meter);
+    const auditor = new CostAuditor(store);
 
     for (let i = 0; i < 5; i++) {
       await auditor.audit({

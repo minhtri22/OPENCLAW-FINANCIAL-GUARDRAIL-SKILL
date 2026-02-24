@@ -1,5 +1,5 @@
 import path from "path";
-import { ConsoleUsageReporter, createGuardrail, guardLlmCall } from "../dist";
+import { createGuardrail, guardLlmCall } from "../dist";
 
 async function run() {
   const guardrail = createGuardrail(
@@ -18,10 +18,10 @@ async function run() {
   const taskId = "openclaw-task-001";
   const newScore = 0.62;
 
-  guardrail.meter.addReporter(new ConsoleUsageReporter());
-
   const result = await guardLlmCall(guardrail, {
     taskId,
+    requestId: "req-123",
+    environment: "dev",
     signal: newScore,
     spend: 15,
     reason: "openclaw-agent-output",

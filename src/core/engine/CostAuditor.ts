@@ -1,7 +1,6 @@
 import { guardrailConfig } from "../../config/guardrail.config";
 import { UsageEntry } from "../domain/Types";
 import { LocalFileStore } from "../../infra/LocalFileStore";
-import { UsageMeter } from "../../infra/UsageMeter";
 
 interface AuditInput {
   promptTokens: number;
@@ -14,7 +13,7 @@ interface AuditInput {
 export class CostAuditor {
   private readonly historyFile = "cost_history.json";
 
-  constructor(private readonly store: LocalFileStore, private readonly meter: UsageMeter) {}
+  constructor(private readonly store: LocalFileStore) {}
 
   async audit(input: AuditInput): Promise<UsageEntry> {
     const tokensUsed = Math.max(0, input.promptTokens + input.completionTokens);
@@ -43,8 +42,6 @@ export class CostAuditor {
     history.push(estimatedCost);
     const trimmed = history.slice(-guardrailConfig.costHistoryWindow);
     await this.store.writeJson(this.historyFile, trimmed);
-    await this.meter.record(entry);
-
     return entry;
   }
 

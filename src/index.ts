@@ -3,7 +3,7 @@ import { LoopGuard } from "./core/engine/LoopGuard";
 import { CostAuditor } from "./core/engine/CostAuditor";
 import { guardLlmCall, wrapLlmCaller } from "./core/engine/GuardrailMiddleware";
 import { LocalFileStore } from "./infra/LocalFileStore";
-import { ConsoleUsageReporter, UsageMeter } from "./infra/UsageMeter";
+import { UsageMeter } from "./infra/UsageMeter";
 import { KeyVault } from "./infra/KeyVault";
 import { guardrailConfig } from "./config/guardrail.config";
 
@@ -13,7 +13,6 @@ export {
   CostAuditor,
   LocalFileStore,
   UsageMeter,
-  ConsoleUsageReporter,
   KeyVault,
   guardrailConfig,
   guardLlmCall,
@@ -23,7 +22,7 @@ export {
 export function createGuardrail(baseDir: string, encryptionKey: string) {
   const store = new LocalFileStore(baseDir);
   const meter = new UsageMeter(store);
-  const auditor = new CostAuditor(store, meter);
+  const auditor = new CostAuditor(store);
   const budget = new BudgetManager(store);
   const loop = new LoopGuard(store);
   const vault = new KeyVault(encryptionKey);
