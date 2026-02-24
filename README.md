@@ -65,6 +65,46 @@ const usage = await guardrail.auditor.audit({
 });
 ```
 
+## Integration With OpenClaw
+A minimal flow that matches the OpenClaw agent lifecycle:
+
+1. Initialize the guardrail with a persistent data directory and AES-256 key.
+2. Before each agent execution, call `budget.spend(...)` and `loop.assertExecution(...)`.
+3. After each execution, call `auditor.audit(...)` using real token counts.
+4. Store ledgers and state locally under the chosen data directory.
+
+Example (runner skeleton):
+```ts
+import { createGuardrail } from "./dist";
+
+const guardrail = createGuardrail("./data", process.env.GUARDRAIL_KEY || "32-bytes-minimum-key__________");
+
+await guardrail.budget.init({
+  totalCapital: 1000,
+  maxDailyBurn: 200,
+  reserveCapital: 300,
+  currentDailySpend: 0,
+  lastSpendDate: new Date().toISOString().slice(0, 10),
+});
+
+export async function runTask(taskId: string, signal: number) {
+  const allowed = await guardrail.budget.spend(20, "agent-run");
+  if (!allowed) throw new Error("Budget limit hit");
+
+  await guardrail.loop.assertExecution(taskId, signal);
+
+  // Run your OpenClaw agent here and compute real token usage.
+  const promptTokens = 500;
+  const completionTokens = 250;
+
+  await guardrail.auditor.audit({
+    promptTokens,
+    completionTokens,
+    reason: "agent-run",
+  });
+}
+```
+
 ## Security Notes
 - Provide AES-256 key via environment (`GUARDRAIL_KEY`).
 - Never log plaintext API keys; use `KeyVault` to encrypt/decrypt.
