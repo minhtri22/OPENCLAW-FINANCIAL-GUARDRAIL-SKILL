@@ -157,4 +157,4 @@ Note: The loop guard applies a cooldown window (default 60 minutes). If you reru
 
 ## Scope Boundary
 - This repo only enforces budgets, costs, loops/retries, concurrency, and emits structured logs.
-- It does **not** perform analytics, reporting, simulation, optimization planning, or bottleneck classification. Use Lighthouse for observability/diagnostics.
+- It does **not** perform analytics, reporting, simulation, optimization planning, or bottleneck classification. Use [Lighthouse for observability/diagnostics](https://github.com/minhtri22/OpenClaw-Lighthouse-Diagnostic-Skill).
