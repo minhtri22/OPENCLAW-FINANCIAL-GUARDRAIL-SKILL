@@ -141,3 +141,5 @@ The example:
 - initializes a local budget wallet
 - enforces loop guard
 - records audited usage
+
+Note: The loop guard applies a cooldown window (default 60 minutes). If you rerun the example immediately, it may be blocked. To reset quickly, delete the local runtime state (the `runtime-data/` folder) or change the `taskId`.
